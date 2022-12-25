@@ -1,6 +1,4 @@
-use std::sync::Arc;
-
-use crate::server::domains::repositories::user::{UserCreateFailed, UserRepository};
+use crate::server::domains::errors::user::{UserError, UserErrorType, UserResult};
 
 pub struct UserID(pub String);
 
@@ -16,21 +14,17 @@ impl User {
         name.len() <= 10
     }
 
-    pub fn new(id: String, name: String) -> Option<Self> {
+    pub fn new(id: String, name: String) -> UserResult<User> {
         if Self::validate_name(&name) {
-            Some(User {
+            Ok(User {
                 id: UserID(id),
                 name: UserName(name),
             })
         } else {
-            None
+            Err(UserError::new(
+                UserErrorType::ParseFailed,
+                "failed to validate",
+            ))
         }
-    }
-
-    pub async fn create(
-        name: String,
-        repository: Arc<dyn UserRepository>,
-    ) -> Result<Self, UserCreateFailed> {
-        repository.create(name).await
     }
 }

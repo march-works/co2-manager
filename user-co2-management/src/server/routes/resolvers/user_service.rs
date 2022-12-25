@@ -11,8 +11,6 @@ impl User for UserService {
         &self,
         request: Request<UserRequest>,
     ) -> Result<Response<UserResponse>, Status> {
-        // println!("Got a request: {:?}", request);
-
         let reply = user::UserResponse {
             name: format!("Good night {}!", request.into_inner().id).into(),
         };

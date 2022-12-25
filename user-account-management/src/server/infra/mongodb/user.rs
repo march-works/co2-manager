@@ -1,14 +1,15 @@
-use std::env;
-
 use async_trait::async_trait;
-use mongodb::{bson::doc, options::ClientOptions, Client};
+use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::server::domains::{
     entities::user::User,
-    repositories::user::{UserCreateFailed, UserRepository},
+    errors::user::{UserError, UserErrorType, UserResult},
+    repositories::user::UserRepository,
 };
+
+use super::get_handler;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct UserDto {
@@ -16,65 +17,66 @@ struct UserDto {
     name: String,
 }
 
-impl UserDto {
-    fn from(user_dto: User) -> Self {
+impl From<User> for UserDto {
+    fn from(user: User) -> Self {
         UserDto {
-            id: user_dto.id.0,
-            name: user_dto.name.0,
+            id: user.id.0,
+            name: user.name.0,
         }
     }
+}
 
-    fn into(self) -> Option<User> {
-        User::new(self.id, self.name)
+impl TryFrom<UserDto> for User {
+    type Error = UserError;
+
+    fn try_from(value: UserDto) -> UserResult<User> {
+        User::new(value.id, value.name)
     }
 }
 
+#[derive(Clone, Debug, Default)]
 pub struct MongodbUserRepository;
-
-impl MongodbUserRepository {
-    async fn get_handler(&self) -> Result<Client, anyhow::Error> {
-        let username = env::var("MONGO_USERNAME")?;
-        let password = env::var("MONGO_PASSWORD")?;
-        println!("{}", username);
-        println!("{}", password);
-        let mut client_options = ClientOptions::parse(format!(
-            "mongodb://{}:{}@mongo-user:27017",
-            username, password
-        ))
-        .await?;
-        client_options.app_name = Some("User Account Management".to_string());
-        Ok(Client::with_options(client_options)?)
-    }
-}
 
 #[async_trait]
 impl UserRepository for MongodbUserRepository {
-    async fn create(&self, name: String) -> Result<User, UserCreateFailed> {
+    async fn find_one(&self, id: String) -> UserResult<User> {
+        let handler = get_handler().await.or(Err(UserError::new(
+            UserErrorType::Unknown,
+            "failed to connect to db",
+        )))?;
+        let collection = handler.collection::<UserDto>("users");
+        let user = collection
+            .find_one(doc! { "id": &id }, None)
+            .await
+            .or(Err(UserError::new(
+                UserErrorType::Unknown,
+                "failed to connect to db",
+            )))?;
+        let user = user.ok_or(UserError::new(
+            UserErrorType::NotFound,
+            format!("no user for {}", &id),
+        ))?;
+        user.try_into()
+    }
+
+    async fn create_one(&self, name: String) -> UserResult<User> {
         let uuid = Uuid::new_v4().to_string();
         let user_dto = UserDto {
             id: uuid.clone(),
             name,
         };
-        let handler = self.get_handler().await;
-        let ret = match handler {
-            Ok(client) => {
-                let db = client.database("user-account");
-                let collection = db.collection::<UserDto>("users");
-                collection
-                    .insert_one(&user_dto, None)
-                    .await
-                    .or(Err(UserCreateFailed))?;
-
-                let filter = doc! { "id": uuid };
-                let cursor = collection
-                    .find(filter, None)
-                    .await
-                    .or(Err(UserCreateFailed))?;
-                let created = cursor.deserialize_current().or(Err(UserCreateFailed))?;
-                created.into()
-            }
-            Err(_) => None,
-        };
-        ret.ok_or(UserCreateFailed)
+        let handler = get_handler().await.or(Err(UserError::new(
+            UserErrorType::Unknown,
+            "failed to connect to db",
+        )))?;
+        let collection = handler.collection::<UserDto>("users");
+        collection
+            .insert_one(&user_dto, None)
+            .await
+            .or(Err(UserError::new(
+                UserErrorType::Duplicate,
+                "already exists",
+            )))?;
+        self.find_one(uuid).await
     }
 }

@@ -1,3 +1,3 @@
 mod domains;
-mod infra;
-pub mod routes;
+pub mod infra;
+mod routes;
