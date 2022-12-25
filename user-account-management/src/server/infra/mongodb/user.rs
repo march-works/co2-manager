@@ -20,8 +20,8 @@ struct UserDto {
 impl From<User> for UserDto {
     fn from(user: User) -> Self {
         UserDto {
-            id: user.id.0,
-            name: user.name.0,
+            id: user.id().into(),
+            name: user.name().into(),
         }
     }
 }

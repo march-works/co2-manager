@@ -31,7 +31,9 @@ impl UserGrpc for UserService<'static> {
     ) -> Result<Response<GetUserResponse>, Status> {
         let found = self.controller.find_user(request.into_inner().id).await;
         match found {
-            Ok(user) => Ok(Response::new(GetUserResponse { name: user.name.0 })),
+            Ok(user) => Ok(Response::new(GetUserResponse {
+                name: user.name().into(),
+            })),
             Err(UserError {
                 typ: UserErrorType::NotFound,
                 desc,
@@ -51,8 +53,8 @@ impl UserGrpc for UserService<'static> {
         let created = self.controller.create_user(request.into_inner().name).await;
         match created {
             Ok(user) => Ok(Response::new(CreateUserResponse {
-                id: user.id.0,
-                name: user.name.0,
+                id: user.id().into(),
+                name: user.name().into(),
             })),
             Err(_) => Err(Status::invalid_argument("failed to create")),
         }

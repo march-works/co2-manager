@@ -15,6 +15,7 @@ async-trait = "0.1.60"
 mongodb = { version = "2.3.1", features = ["tokio-runtime"] }
 serde = { version = "1.0.151", features = ["derive"] }
 uuid = { version = "1.2.2", features = ["v4"] }
+derive-getters = "0.2.0"
 
 [build-dependencies]
 tonic-build = "0.8.4"
