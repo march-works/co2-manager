@@ -10,7 +10,7 @@ pub enum UserErrorType {
 
 pub type UserResult<T> = Result<T, UserError>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct UserError {
     pub typ: UserErrorType,
     pub desc: String,
