@@ -48,14 +48,10 @@ impl UserRepository for MongodbUserRepository {
         let user = collection
             .find_one(doc! { "id": &id }, None)
             .await
-            .map_err(|_| UserError::new(
-                UserErrorType::Unknown,
-                "failed to connect to db",
-            ))?;
-        let user = user.ok_or_else(|| UserError::new(
-            UserErrorType::NotFound,
-            format!("no user for {}", &id),
-        ))?;
+            .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
+        let user = user.ok_or_else(|| {
+            UserError::new(UserErrorType::NotFound, format!("no user for {}", &id))
+        })?;
         user.try_into()
     }
 
