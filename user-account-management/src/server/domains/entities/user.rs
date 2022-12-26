@@ -7,7 +7,7 @@ pub struct UserID(String);
 
 impl UserID {
     fn validate(id: &str) -> bool {
-        id.is_empty() && id.len() <= 64
+        !id.is_empty() && id.len() <= 64
     }
 }
 
@@ -37,7 +37,7 @@ pub struct UserName(String);
 
 impl UserName {
     fn validate(name: &str) -> bool {
-        name.is_empty() && name.len() <= 10
+        !name.is_empty() && name.len() <= 10
     }
 }
 
