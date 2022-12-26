@@ -1,3 +1,6 @@
+mod application;
 mod domains;
 pub mod infra;
-mod routes;
+
+#[cfg(test)]
+mod tests;

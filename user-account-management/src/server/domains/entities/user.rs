@@ -32,7 +32,7 @@ impl From<&UserID> for String {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserName(String);
 
 impl UserName {
@@ -50,7 +50,7 @@ impl TryFrom<String> for UserName {
         } else {
             Err(UserError::new(
                 UserErrorType::ParseFailed,
-                "failed to parse id",
+                "failed to parse name",
             ))
         }
     }
@@ -83,3 +83,30 @@ impl PartialEq for User {
 }
 
 impl Eq for User {}
+
+#[cfg(test)]
+mod tests {
+    use rstest::rstest;
+
+    use super::*;
+
+    #[rstest(input, expected,
+        case("", Err(UserError { typ: UserErrorType::ParseFailed, desc: "failed to parse id".into() })),
+        case("a", Ok(UserID("a".into()))),
+        case("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz", Ok(UserID("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz".into()))),
+        case("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz-", Err(UserError { typ: UserErrorType::ParseFailed, desc: "failed to parse id".into() })),
+    )]
+    fn validate_id(input: &str, expected: UserResult<UserID>) {
+        assert_eq!(expected, UserID::try_from(input.to_string()));
+    }
+
+    #[rstest(input, expected,
+        case("", Err(UserError { typ: UserErrorType::ParseFailed, desc: "failed to parse name".into() })),
+        case("a", Ok(UserName("a".into()))),
+        case("James Bond", Ok(UserName("James Bond".into()))),
+        case("James Bonds", Err(UserError { typ: UserErrorType::ParseFailed, desc: "failed to parse name".into() })),
+    )]
+    fn validate_name(input: &str, expected: UserResult<UserName>) {
+        assert_eq!(expected, UserName::try_from(input.to_string()));
+    }
+}

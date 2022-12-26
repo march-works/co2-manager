@@ -5,7 +5,7 @@ use self::{
     resolvers::user::UserService,
 };
 
-use super::routes::user::user_grpc_server::UserGrpcServer;
+use super::application::user::user_grpc_server::UserGrpcServer;
 
 pub mod mongodb;
 pub mod repository_impl;
