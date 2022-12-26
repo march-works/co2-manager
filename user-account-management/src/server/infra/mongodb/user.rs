@@ -40,10 +40,9 @@ pub struct MongodbUserRepository;
 #[async_trait]
 impl UserRepository for MongodbUserRepository {
     async fn find_one(&self, id: String) -> UserResult<User> {
-        let handler = get_handler().await.or(Err(UserError::new(
-            UserErrorType::Unknown,
-            "failed to connect to db",
-        )))?;
+        let handler = get_handler()
+            .await
+            .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
         let collection = handler.collection::<UserDto>("users");
         let user = collection
             .find_one(doc! { "id": &id }, None)
@@ -61,18 +60,14 @@ impl UserRepository for MongodbUserRepository {
             id: uuid.clone(),
             name,
         };
-        let handler = get_handler().await.or(Err(UserError::new(
-            UserErrorType::Unknown,
-            "failed to connect to db",
-        )))?;
+        let handler = get_handler()
+            .await
+            .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
         let collection = handler.collection::<UserDto>("users");
         collection
             .insert_one(&user_dto, None)
             .await
-            .or(Err(UserError::new(
-                UserErrorType::Duplicate,
-                "already exists",
-            )))?;
+            .map_err(|_| UserError::new(UserErrorType::Duplicate, "already exists"))?;
         self.find_one(uuid).await
     }
 }
