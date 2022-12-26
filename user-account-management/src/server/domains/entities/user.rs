@@ -7,7 +7,7 @@ pub struct UserID(String);
 
 impl UserID {
     fn validate(id: &str) -> bool {
-        id.len() > 0 && id.len() <= 64
+        id.is_empty() && id.len() <= 64
     }
 }
 
@@ -26,9 +26,9 @@ impl TryFrom<String> for UserID {
     }
 }
 
-impl Into<String> for &UserID {
-    fn into(self) -> String {
-        self.0.clone()
+impl From<&UserID> for String {
+    fn from(value: &UserID) -> Self {
+        value.0.clone()
     }
 }
 
@@ -37,7 +37,7 @@ pub struct UserName(String);
 
 impl UserName {
     fn validate(name: &str) -> bool {
-        name.len() > 0 && name.len() <= 10
+        name.is_empty() && name.len() <= 10
     }
 }
 
@@ -56,9 +56,9 @@ impl TryFrom<String> for UserName {
     }
 }
 
-impl Into<String> for &UserName {
-    fn into(self) -> String {
-        self.0.clone()
+impl From<&UserName> for String {
+    fn from(value: &UserName) -> Self {
+        value.0.clone()
     }
 }
 
