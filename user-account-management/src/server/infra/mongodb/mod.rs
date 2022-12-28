@@ -11,9 +11,11 @@ pub mod user;
 async fn get_handler() -> Result<Database, anyhow::Error> {
     let username = env::var("MONGO_USERNAME")?;
     let password = env::var("MONGO_PASSWORD")?;
+    let url = env::var("MONGO_ACCESS_URL")?;
+    let conf = env::var("MONGO_ACCESS_CONF")?;
     let mut client_options = ClientOptions::parse(format!(
-        "mongodb://{}:{}@mongo:27017",
-        username, password
+        "mongodb://{}:{}@{}:27017{}",
+        username, password, url, conf
     ))
     .await?;
     client_options.app_name = Some("User Account Management".to_string());
