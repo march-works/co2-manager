@@ -20,7 +20,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_SERVER: mongo-user
+      ME_CONFIG_MONGODB_SERVER: mongo
 
   user-account-manager:
     build: ./user-account-management

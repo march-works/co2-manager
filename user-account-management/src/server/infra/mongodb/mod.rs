@@ -12,7 +12,7 @@ async fn get_handler() -> Result<Database, anyhow::Error> {
     let username = env::var("MONGO_USERNAME")?;
     let password = env::var("MONGO_PASSWORD")?;
     let mut client_options = ClientOptions::parse(format!(
-        "mongodb://{}:{}@mongo-user:27017",
+        "mongodb://{}:{}@mongo:27017",
         username, password
     ))
     .await?;
