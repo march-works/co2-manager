@@ -11,12 +11,26 @@ pub mod mongodb;
 pub mod repository_impl;
 pub mod resolvers;
 
+mod proto {
+    tonic::include_proto!("user");
+
+    pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
+        tonic::include_file_descriptor_set!("user_descriptor");
+}
+
 static REPO: RepositoryImpls = RepositoryImpls {
     user_repo: MongodbUserRepository {},
 };
 
 pub fn run_server() -> Router {
+    let reflection = tonic_reflection::server::Builder::configure()
+        .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
+        .build()
+        .unwrap();
+
     let greeter = UserService::new(&REPO);
 
-    Server::builder().add_service(UserGrpcServer::new(greeter))
+    Server::builder()
+        .add_service(reflection)
+        .add_service(UserGrpcServer::new(greeter))
 }
