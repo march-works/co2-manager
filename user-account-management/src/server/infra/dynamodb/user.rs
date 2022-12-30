@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use mongodb::bson::doc;
+use aws_sdk_dynamodb::model::AttributeValue;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -35,23 +35,29 @@ impl TryFrom<UserDto> for User {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct MongodbUserRepository;
+pub struct DynamodbUserRepository;
 
 #[async_trait]
-impl UserRepository for MongodbUserRepository {
+impl UserRepository for DynamodbUserRepository {
     async fn find_one(&self, id: String) -> UserResult<User> {
-        let handler = get_handler()
+        let handler = get_handler().await;
+        let item = handler
+            .get_item()
+            .table_name("users")
+            .key("id", AttributeValue::S(id.clone()))
+            .send()
             .await
             .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
-        let collection = handler.collection::<UserDto>("users");
-        let user = collection
-            .find_one(doc! { "id": &id }, None)
-            .await
-            .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
-        let user = user.ok_or_else(|| {
-            UserError::new(UserErrorType::NotFound, format!("no user for {}", &id))
-        })?;
-        user.try_into()
+        if let Some(user) = item.item() {
+            let id = user.get("id").map(|v| v.as_s().unwrap()).unwrap();
+            let name = user.get("name").map(|v| v.as_s().unwrap()).unwrap();
+            User::new(id, name)
+        } else {
+            Err(UserError::new(
+                UserErrorType::NotFound,
+                format!("no user for {}", &id),
+            ))
+        }
     }
 
     async fn create_one(&self, name: String) -> UserResult<User> {
@@ -60,14 +66,24 @@ impl UserRepository for MongodbUserRepository {
             id: uuid.clone(),
             name,
         };
-        let handler = get_handler()
+        let handler = get_handler().await;
+
+        let request = handler
+            .put_item()
+            .table_name("users")
+            .item(
+                "id",
+                AttributeValue::S(String::from(user_dto.id.clone().to_string())),
+            )
+            .item(
+                "name",
+                AttributeValue::S(String::from(user_dto.name.clone().to_string())),
+            );
+
+        request
+            .send()
             .await
             .map_err(|_| UserError::new(UserErrorType::Unknown, "failed to connect to db"))?;
-        let collection = handler.collection::<UserDto>("users");
-        collection
-            .insert_one(&user_dto, None)
-            .await
-            .map_err(|_| UserError::new(UserErrorType::Duplicate, "already exists"))?;
         self.find_one(uuid).await
     }
 }

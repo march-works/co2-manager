@@ -1,13 +1,13 @@
 use tonic::transport::{server::Router, Server};
 
 use self::{
-    mongodb::user::MongodbUserRepository, repository_impl::RepositoryImpls,
+    dynamodb::{user::DynamodbUserRepository, make_table, get_handler}, repository_impl::RepositoryImpls,
     resolvers::user::UserService,
 };
 
 use super::application::user::user_grpc_server::UserGrpcServer;
 
-pub mod mongodb;
+pub mod dynamodb;
 pub mod repository_impl;
 pub mod resolvers;
 
@@ -19,10 +19,17 @@ mod proto {
 }
 
 static REPO: RepositoryImpls = RepositoryImpls {
-    user_repo: MongodbUserRepository {},
+    user_repo: DynamodbUserRepository {},
 };
 
-pub fn run_server() -> Router {
+pub async fn run_server() -> Router {
+    let ret = make_table(&get_handler().await, "users", "id").await;
+    if let Err(e) = ret {
+        println!("{:?}", e);
+    } else {
+        println!("table successfully created!!");
+    }
+
     let reflection = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
         .build()

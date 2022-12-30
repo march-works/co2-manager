@@ -1,4 +1,9 @@
 ## copilot上での動作確認
+1. (初回の場合)session managerのインストール
+    ```
+    curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+    sudo dpkg -i session-manager-plugin.deb
+    ```
 1. copilotのコマンドでアプリケーションのshellに入る
     ```shell
     copilot svc exec -a co2-manager -e test
