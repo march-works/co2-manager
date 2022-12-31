@@ -1,7 +1,7 @@
 use tonic::transport::{server::Router, Server};
 
 use self::{
-    dynamodb::{user::DynamodbUserRepository, make_table, get_handler}, repository_impl::RepositoryImpls,
+    dynamodb::user::DynamodbUserRepository, repository_impl::RepositoryImpls,
     resolvers::user::UserService,
 };
 
@@ -23,17 +23,10 @@ static REPO: RepositoryImpls = RepositoryImpls {
 };
 
 pub async fn run_server() -> Router {
-    let ret = make_table(&get_handler().await, "users", "id").await;
-    if let Err(e) = ret {
-        println!("{:?}", e);
-    } else {
-        println!("table successfully created!!");
-    }
-
     let reflection = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
         .build()
-        .unwrap();
+        .expect("failed to start server");
 
     let greeter = UserService::new(&REPO);
 

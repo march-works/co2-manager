@@ -10,7 +10,21 @@ services:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
     networks:
+      - dynamodb-local
       - user-account-manager
+      - user-co2-manager
+
+  dynamodb-admin:
+    container_name: test_dynamodb-admin
+    image: aaronshaf/dynamodb-admin:latest
+    environment:
+      - DYNAMO_ENDPOINT=dynamodb-local:8000
+    ports:
+      - 8001:8001
+    depends_on:
+      - dynamodb-local
+    networks:
+      - dynamodb-local
 
   user-account-manager:
     depends_on:
@@ -30,6 +44,8 @@ services:
       AWS_ACCESS_KEY_ID: 'DUMMYIDEXAMPLE'
       AWS_SECRET_ACCESS_KEY: 'DUMMYEXAMPLEKEY'
       AWS_REGION: 'eu-west-1'
+      USERS_NAME: 'users'
+      LOCALSTACK: true
 
   user-co2-manager:
     build:
@@ -43,5 +59,6 @@ services:
       - ./user-co2-management:/usr/src/user-co2-management
 
 networks:
+  dynamodb-local:
   user-account-manager:
   user-co2-manager:

@@ -14,5 +14,5 @@
     ```
 1. gRPC methodの実行
     ```
-    grpcurl -plaintext -d '{"id": "1234"}' localhost:50051 user.User/getUser
+    grpcurl -plaintext -d '{"name": "Hello"}' localhost:50051 user.UserGrpc/createUser
     ```
