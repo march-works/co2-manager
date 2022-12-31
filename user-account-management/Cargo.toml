@@ -13,12 +13,13 @@ anyhow = "1.0.66"
 thiserror = "1.0.37"
 prost = "0.11.5"
 async-trait = "0.1.60"
-mongodb = { version = "2.3.1", features = ["tokio-runtime"] }
 serde = { version = "1.0.151", features = ["derive"] }
 uuid = { version = "1.2.2", features = ["v4"] }
 derive-getters = "0.2.0"
 mockall = { version = "0.11.3" }
 rstest = "0.16.0"
+aws-config = "0.52.0"
+aws-sdk-dynamodb = "0.22.0"
 
 [build-dependencies]
 tonic-build = "0.8.4"
