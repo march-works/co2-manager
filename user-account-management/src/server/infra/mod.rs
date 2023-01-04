@@ -5,13 +5,13 @@ use self::{
     resolvers::user::UserService,
 };
 
-use super::application::user::user_grpc_server::UserGrpcServer;
+use self::user::user_grpc_server::UserGrpcServer;
 
 pub mod dynamodb;
 pub mod repository_impl;
 pub mod resolvers;
 
-mod proto {
+pub mod user {
     tonic::include_proto!("user");
 
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
@@ -24,7 +24,7 @@ static REPO: RepositoryImpls = RepositoryImpls {
 
 pub async fn run_server() -> Router {
     let reflection = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(user::FILE_DESCRIPTOR_SET)
         .build()
         .expect("failed to start server");
 

@@ -1,0 +1,30 @@
+[package]
+name = "carbon-deposit-management"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+local = [ "queen" ]
+
+[dependencies]
+tonic = "0.8.3"
+tonic-reflection = "0.6.0"
+tokio = { version = "1.22.0", features = ["rt-multi-thread", "macros"] }
+anyhow = "1.0.66"
+thiserror = "1.0.37"
+prost = "0.11.5"
+async-trait = "0.1.60"
+serde = { version = "1.0.151", features = ["derive"] }
+uuid = { version = "1.2.2", features = ["v4"] }
+derive-getters = "0.2.0"
+mockall = { version = "0.11.3" }
+rstest = "0.16.0"
+aws-config = "0.52.0"
+aws-sdk-dynamodb = "0.22.0"
+aws-sdk-sns = "0.22.0"
+queen = { version = "0.26.0", optional = true }
+
+[build-dependencies]
+tonic-build = "0.8.4"
