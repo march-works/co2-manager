@@ -82,7 +82,7 @@ impl TryFrom<f32> for CarbonDepositAmount {
         } else {
             Err(CarbonDepositError::new(
                 CarbonDepositErrorType::ParseFailed,
-                "failed to parse name",
+                "amount cannot be negative",
             ))
         }
     }
@@ -143,12 +143,12 @@ mod tests {
     }
 
     #[rstest(input, expected,
-        case("", Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "failed to parse name".into() })),
-        case("a", Ok(CarbonDepositAmount("a".into()))),
-        case("James Bond", Ok(CarbonDepositAmount("James Bond".into()))),
-        case("James Bonds", Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "failed to parse name".into() })),
+        case(-1f32, Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "amount cannot be negative".into() })),
+        case(0f32, Ok(CarbonDepositAmount(0f32.into()))),
+        case(1f32, Ok(CarbonDepositAmount(1f32.into()))),
+        case(0.5f32, Ok(CarbonDepositAmount(0.5f32.into()))),
     )]
-    fn validate_name(input: &str, expected: CarbonDepositResult<CarbonDepositAmount>) {
-        assert_eq!(expected, CarbonDepositAmount::try_from(input.to_string()));
+    fn validate_name(input: f32, expected: CarbonDepositResult<CarbonDepositAmount>) {
+        assert_eq!(expected, CarbonDepositAmount::try_from(input));
     }
 }

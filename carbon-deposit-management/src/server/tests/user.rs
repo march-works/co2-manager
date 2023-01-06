@@ -52,21 +52,49 @@ async fn find_not_existing_user() {
 }
 
 #[tokio::test]
-async fn move_zero_deposit() {
+async fn move_valid_deposit() {
     let mut user_repo = MockCarbonDepositRepository::new();
     user_repo
-        .expect_move_deposit()
-        .returning(|from, to, amount| Ok(()));
+        .expect_find_one()
+        .returning(|_| CarbonDeposit::new("deposit-id", "user-id", 100.0));
+    user_repo
+        .expect_update_one()
+        .returning(|id, _| CarbonDeposit::new(id, "user-id", 100.0));
 
     let repositories = TestRepositories::new(user_repo);
     let controller = CarbonDepositController::new(&repositories);
 
-    let created = controller
+    let move_result = controller
         .move_deposit("from-id".to_string(), "to-id".to_string(), 100.0)
         .await;
-    assert!(created.is_ok());
+    assert!(move_result.is_ok());
+}
+
+#[tokio::test]
+async fn move_exceeding_deposit() {
+    let mut user_repo = MockCarbonDepositRepository::new();
+    user_repo
+        .expect_find_one()
+        .returning(|_| CarbonDeposit::new("deposit-id", "user-id", 100.0));
+    user_repo.expect_update_one().returning(|_, _| {
+        Err(CarbonDepositError::new(
+            CarbonDepositErrorType::InsufficientAmount,
+            "movable amount exceeded",
+        ))
+    });
+
+    let repositories = TestRepositories::new(user_repo);
+    let controller = CarbonDepositController::new(&repositories);
+
+    let move_result = controller
+        .move_deposit("from-id".to_string(), "to-id".to_string(), 100.0)
+        .await;
+    assert!(move_result.is_err());
     assert_eq!(
-        created.unwrap(),
-        CarbonDeposit::new("id-test", "James Bond").unwrap()
+        move_result,
+        Err(CarbonDepositError::new(
+            CarbonDepositErrorType::InsufficientAmount,
+            "movable amount exceeded",
+        ))
     );
 }
