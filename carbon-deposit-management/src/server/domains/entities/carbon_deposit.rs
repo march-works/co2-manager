@@ -144,9 +144,9 @@ mod tests {
 
     #[rstest(input, expected,
         case(-1f32, Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "amount cannot be negative".into() })),
-        case(0f32, Ok(CarbonDepositAmount(0f32.into()))),
-        case(1f32, Ok(CarbonDepositAmount(1f32.into()))),
-        case(0.5f32, Ok(CarbonDepositAmount(0.5f32.into()))),
+        case(0f32, Ok(CarbonDepositAmount(0f32))),
+        case(1f32, Ok(CarbonDepositAmount(1f32))),
+        case(0.5f32, Ok(CarbonDepositAmount(0.5f32))),
     )]
     fn validate_name(input: f32, expected: CarbonDepositResult<CarbonDepositAmount>) {
         assert_eq!(expected, CarbonDepositAmount::try_from(input));
