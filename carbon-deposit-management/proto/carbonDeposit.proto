@@ -1,0 +1,28 @@
+syntax = "proto3";
+package carbonDeposit;
+
+service CarbonDepositGrpc {
+    rpc getUserCarbonDeposit (GetUserCarbonDepositRequest) returns (GetUserCarbonDepositResponse);
+    rpc moveDepositBetweenUser (MoveDepositBetweenUserRequest) returns (MoveDepositBetweenUserResponse);
+}
+
+message GetUserCarbonDepositRequest {
+    string userId = 1;
+}
+
+message GetUserCarbonDepositResponse {
+    string depositId = 1;
+    string userId = 2;
+    float amount = 3;
+}
+
+message MoveDepositBetweenUserRequest {
+    string from = 1;
+    string to = 2;
+    float amount = 3;
+}
+
+message MoveDepositBetweenUserResponse {
+    // TODO: consider this
+    string movedResult = 1;
+}

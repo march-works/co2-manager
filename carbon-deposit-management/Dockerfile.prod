@@ -1,0 +1,11 @@
+FROM rust:1.66.0
+
+WORKDIR /usr/src/carbon-deposit-management
+
+RUN apt update && apt upgrade -y
+RUN apt install -y protobuf-compiler libprotobuf-dev
+
+COPY . .
+RUN cargo install --path .
+
+CMD ["carbon-deposit-management"]

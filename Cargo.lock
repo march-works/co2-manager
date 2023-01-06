@@ -140,6 +140,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-sdk-sns"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11f4bb4dca286a6fb82d89192df4af8aa251783c2a61d35668b975879f5a4b59"
+dependencies = [
+ "aws-endpoint",
+ "aws-http",
+ "aws-sig-auth",
+ "aws-smithy-async",
+ "aws-smithy-client",
+ "aws-smithy-http",
+ "aws-smithy-http-tower",
+ "aws-smithy-query",
+ "aws-smithy-types",
+ "aws-smithy-xml",
+ "aws-types",
+ "bytes",
+ "http",
+ "tokio-stream",
+ "tower",
+]
+
+[[package]]
 name = "aws-sdk-sso"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -442,6 +465,29 @@ checksum = "e47d3a8076e283f3acd27400535992edb3ba4b5bb72f8891ad8fbe7932a7d4b9"
 dependencies = [
  "bytes",
  "either",
+]
+
+[[package]]
+name = "carbon-deposit-management"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "aws-config",
+ "aws-sdk-dynamodb",
+ "aws-sdk-sns",
+ "derive-getters",
+ "mockall",
+ "prost",
+ "queen",
+ "rstest",
+ "serde",
+ "thiserror",
+ "tokio",
+ "tonic",
+ "tonic-build",
+ "tonic-reflection",
+ "uuid",
 ]
 
 [[package]]
@@ -973,6 +1019,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
+name = "nson"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26d5bea63312987b785efc64bb379cdc45bf35e3a35fdcceffba355e44eecd07"
+dependencies = [
+ "base64",
+ "hex",
+ "indexmap",
+ "once_cell",
+ "rand",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1175,6 +1237,30 @@ checksum = "017f79637768cde62820bc2d4fe0e45daaa027755c323ad077767c6c5f173091"
 dependencies = [
  "bytes",
  "prost",
+]
+
+[[package]]
+name = "queen"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c264c7ed91e9354f6070f933b054cd9be2eb3e5c0100bf2e1dd4c39c125dbb3f"
+dependencies = [
+ "libc",
+ "log",
+ "nson",
+ "queen-io",
+ "rand",
+ "ring",
+]
+
+[[package]]
+name = "queen-io"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d260c31da44ba3708cbf83696d8f56e2106bf12e2e75afd8281f7e39ac0c943"
+dependencies = [
+ "indexmap",
+ "libc",
 ]
 
 [[package]]
@@ -1405,6 +1491,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_bytes"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "718dc5fff5b36f99093fc49b280cfc96ce6fc824317783bff5a1fed0c7a64819"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.151"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1413,6 +1508,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.91"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "877c235533714907a8c2464236f5c4b2a17262ef1bd71f38f35ea592c8da6883"
+dependencies = [
+ "indexmap",
+ "itoa",
+ "ryu",
+ "serde",
 ]
 
 [[package]]

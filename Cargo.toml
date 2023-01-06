@@ -2,4 +2,5 @@
 
 members = [
     "user-account-management",
+    "carbon-deposit-management"
 ]

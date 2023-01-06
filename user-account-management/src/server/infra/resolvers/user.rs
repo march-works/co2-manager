@@ -1,15 +1,15 @@
 use tonic::{Request, Response, Status};
 
 use crate::server::{
-    application::{
-        controllers::user::UserController,
+    application::controllers::user::UserController,
+    domains::errors::user::{UserError, UserErrorType},
+    infra::{
+        repository_impl::RepositoryImpls,
         user::{
             user_grpc_server::UserGrpc, CreateUserRequest, CreateUserResponse, GetUserRequest,
             GetUserResponse,
         },
     },
-    domains::errors::user::{UserError, UserErrorType},
-    infra::repository_impl::RepositoryImpls,
 };
 
 pub struct UserService<'r> {
