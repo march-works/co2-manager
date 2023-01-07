@@ -5,36 +5,6 @@ use crate::server::domains::errors::carbon_deposit::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CarbonDepositID(String);
-
-impl CarbonDepositID {
-    fn validate(id: &str) -> bool {
-        !id.is_empty() && id.len() <= 64
-    }
-}
-
-impl TryFrom<String> for CarbonDepositID {
-    type Error = CarbonDepositError;
-
-    fn try_from(id: String) -> CarbonDepositResult<CarbonDepositID> {
-        if Self::validate(&id) {
-            Ok(Self(id))
-        } else {
-            Err(CarbonDepositError::new(
-                CarbonDepositErrorType::ParseFailed,
-                "failed to parse id",
-            ))
-        }
-    }
-}
-
-impl From<&CarbonDepositID> for String {
-    fn from(value: &CarbonDepositID) -> Self {
-        value.0.clone()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserID(String);
 
 impl UserID {
@@ -96,31 +66,21 @@ impl From<&CarbonDepositAmount> for f32 {
 
 #[derive(Debug, Getters)]
 pub struct CarbonDeposit {
-    id: CarbonDepositID,
     user_id: UserID,
     amount: CarbonDepositAmount,
 }
 
 impl CarbonDeposit {
-    pub fn new(
-        id: impl ToString,
-        user_id: impl ToString,
-        amount: f32,
-    ) -> CarbonDepositResult<CarbonDeposit> {
-        let id = CarbonDepositID::try_from(id.to_string())?;
+    pub fn new(user_id: impl ToString, amount: f32) -> CarbonDepositResult<CarbonDeposit> {
         let user_id = UserID::try_from(user_id.to_string())?;
         let amount = CarbonDepositAmount::try_from(amount)?;
-        Ok(CarbonDeposit {
-            id,
-            user_id,
-            amount,
-        })
+        Ok(CarbonDeposit { user_id, amount })
     }
 }
 
 impl PartialEq for CarbonDeposit {
     fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
+        self.user_id == other.user_id
     }
 }
 
@@ -131,16 +91,6 @@ mod tests {
     use rstest::rstest;
 
     use super::*;
-
-    #[rstest(input, expected,
-        case("", Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "failed to parse id".into() })),
-        case("a", Ok(CarbonDepositID("a".into()))),
-        case("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz", Ok(CarbonDepositID("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz".into()))),
-        case("abcd-efgh-ijkl-mnop-qrst-uvwx-yzab-cdef-ghij-klmn-opqr-stuv-wxyz-", Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "failed to parse id".into() })),
-    )]
-    fn validate_id(input: &str, expected: CarbonDepositResult<CarbonDepositID>) {
-        assert_eq!(expected, CarbonDepositID::try_from(input.to_string()));
-    }
 
     #[rstest(input, expected,
         case(-1f32, Err(CarbonDepositError { typ: CarbonDepositErrorType::ParseFailed, desc: "amount cannot be negative".into() })),

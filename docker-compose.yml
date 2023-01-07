@@ -1,5 +1,7 @@
 version: "3.9"
 services:
+  # DB起動には以下のコマンド実行が必要
+  # sudo chmod 777 ./docker/dynamodb
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
@@ -12,7 +14,7 @@ services:
     networks:
       - dynamodb-local
       - user-account-manager
-      - user-co2-manager
+      - carbon-deposit-management
 
   dynamodb-admin:
     container_name: test_dynamodb-admin
@@ -47,18 +49,28 @@ services:
       USERS_NAME: 'users'
       LOCALSTACK: true
 
-  user-co2-manager:
+  carbon-deposit-manager:
+    depends_on:
+      - dynamodb-local
+    links:
+      - dynamodb-local
     build:
-      context: ./user-co2-management
+      context: ./carbon-deposit-management
       dockerfile: Dockerfile.dev
     ports:
       - "50052:50052"
     networks:
-      - user-co2-manager
+      - carbon-deposit-management
     volumes:
-      - ./user-co2-management:/usr/src/user-co2-management
+      - ./carbon-deposit-management:/usr/src/carbon-deposit-management
+    environment:
+      AWS_ACCESS_KEY_ID: 'DUMMYIDEXAMPLE'
+      AWS_SECRET_ACCESS_KEY: 'DUMMYEXAMPLEKEY'
+      AWS_REGION: 'eu-west-1'
+      CARBONDEPOSITS_NAME: 'carbon-deposits'
+      LOCALSTACK: true
 
 networks:
   dynamodb-local:
   user-account-manager:
-  user-co2-manager:
+  carbon-deposit-management:

@@ -6,4 +6,4 @@ RUN apt update && apt upgrade -y
 RUN apt install -y protobuf-compiler libprotobuf-dev
 RUN cargo install cargo-watch
 
-CMD ["cargo", "watch", "-x", "'run'", "--feature", "local"]
+CMD ["cargo", "watch", "-x", "'run'"]
