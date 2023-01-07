@@ -33,11 +33,6 @@ impl DynamodbCarbonDepositRepository {
     fn retrieve(
         attributes: &HashMap<String, AttributeValue>,
     ) -> CarbonDepositResult<CarbonDeposit> {
-        let id = attributes
-            .get("id")
-            .ok_or_else(|| Self::parse_failed("id"))?
-            .as_s()
-            .map_err(|_| Self::parse_failed("id"))?;
         let user_id = attributes
             .get("userId")
             .ok_or_else(|| Self::parse_failed("user_id"))?
@@ -52,25 +47,28 @@ impl DynamodbCarbonDepositRepository {
             .map_err(|e| {
                 CarbonDepositError::new(CarbonDepositErrorType::Unknown, format!("{}", e))
             })?;
-        CarbonDeposit::new(id, user_id, amount)
+        CarbonDeposit::new(user_id, amount)
     }
 }
 
 #[async_trait]
 impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
     async fn find_one(&self, id: String) -> CarbonDepositResult<CarbonDeposit> {
-        let table_name = env::var("CARBON_DEPOSITS_NAME").map_err(|_| {
+        let table_name = env::var("CARBONDEPOSITS_NAME").map_err(|_| {
             CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to parse env")
         })?;
         let handler = get_handler().await;
         let item = handler
             .get_item()
             .table_name(&table_name)
-            .key("id", AttributeValue::S(id.clone()))
+            .key("userId", AttributeValue::S(id.clone()))
             .send()
             .await
-            .map_err(|_| {
-                CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to connect to db")
+            .map_err(|e| {
+                CarbonDepositError::new(
+                    CarbonDepositErrorType::Unknown,
+                    format!("failed to connect to db: {:?}", e),
+                )
             })?;
         if let Some(deposit) = item.item() {
             Self::retrieve(deposit)
@@ -80,7 +78,7 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
     }
 
     async fn update_one(&self, id: String, amount: f32) -> CarbonDepositResult<CarbonDeposit> {
-        let table_name = env::var("CARBON_DEPOSITS_NAME").map_err(|_| {
+        let table_name = env::var("CARBONDEPOSITS_NAME").map_err(|_| {
             CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to parse env")
         })?;
         let handler = get_handler().await;
@@ -91,7 +89,7 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
         let updated = handler
             .update_item()
             .table_name(&table_name)
-            .key("id", AttributeValue::S(id.clone()))
+            .key("userId", AttributeValue::S(id.clone()))
             .attribute_updates("amount", before)
             .return_values(ReturnValue::AllNew)
             .send()

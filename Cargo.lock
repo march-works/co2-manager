@@ -479,7 +479,6 @@ dependencies = [
  "derive-getters",
  "mockall",
  "prost",
- "queen",
  "rstest",
  "serde",
  "thiserror",
@@ -1019,22 +1018,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
-name = "nson"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26d5bea63312987b785efc64bb379cdc45bf35e3a35fdcceffba355e44eecd07"
-dependencies = [
- "base64",
- "hex",
- "indexmap",
- "once_cell",
- "rand",
- "serde",
- "serde_bytes",
- "serde_json",
-]
-
-[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1237,30 +1220,6 @@ checksum = "017f79637768cde62820bc2d4fe0e45daaa027755c323ad077767c6c5f173091"
 dependencies = [
  "bytes",
  "prost",
-]
-
-[[package]]
-name = "queen"
-version = "0.26.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c264c7ed91e9354f6070f933b054cd9be2eb3e5c0100bf2e1dd4c39c125dbb3f"
-dependencies = [
- "libc",
- "log",
- "nson",
- "queen-io",
- "rand",
- "ring",
-]
-
-[[package]]
-name = "queen-io"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d260c31da44ba3708cbf83696d8f56e2106bf12e2e75afd8281f7e39ac0c943"
-dependencies = [
- "indexmap",
- "libc",
 ]
 
 [[package]]
@@ -1483,43 +1442,22 @@ checksum = "58bc9567378fc7690d6b2addae4e60ac2eeea07becb2c64b9f218b53865cba2a"
 
 [[package]]
 name = "serde"
-version = "1.0.151"
+version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97fed41fc1a24994d044e6db6935e69511a1153b52c15eb42493b26fa87feba0"
+checksum = "bb7d1f0d3021d347a83e556fc4683dea2ea09d87bccdf88ff5c12545d89d5efb"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
-name = "serde_bytes"
-version = "0.11.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "718dc5fff5b36f99093fc49b280cfc96ce6fc824317783bff5a1fed0c7a64819"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "serde_derive"
-version = "1.0.151"
+version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "255abe9a125a985c05190d687b320c12f9b1f0b99445e608c21ba0782c719ad8"
+checksum = "af487d118eecd09402d70a5d72551860e788df87b464af30e5ea6a38c75c541e"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "serde_json"
-version = "1.0.91"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "877c235533714907a8c2464236f5c4b2a17262ef1bd71f38f35ea592c8da6883"
-dependencies = [
- "indexmap",
- "itoa",
- "ryu",
- "serde",
 ]
 
 [[package]]

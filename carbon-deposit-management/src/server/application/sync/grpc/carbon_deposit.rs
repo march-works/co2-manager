@@ -36,7 +36,6 @@ impl CarbonDepositGrpc for CarbonDepositService<'static> {
             .await;
         match found {
             Ok(deposit) => Ok(Response::new(GetUserCarbonDepositResponse {
-                deposit_id: deposit.id().into(),
                 user_id: deposit.user_id().into(),
                 amount: deposit.amount().into(),
             })),
