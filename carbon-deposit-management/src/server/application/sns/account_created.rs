@@ -1,6 +1,6 @@
 use std::{env, time::Duration};
 
-use tokio::{time::sleep, runtime::Runtime};
+use tokio::{runtime::Runtime, time::sleep};
 
 use crate::server::{
     application::REPO,
@@ -16,7 +16,6 @@ use super::get_handler;
 pub fn subscribe() -> Result<(), anyhow::Error> {
     let rt = Runtime::new().unwrap();
     rt.block_on(async {
-        println!("aaaaa");
         let controller = CarbonDepositController::new(&REPO);
         let client = get_handler().await;
         let url = env::var("COPILOT_QUEUE_URI").map_err(|_| {
@@ -27,7 +26,7 @@ pub fn subscribe() -> Result<(), anyhow::Error> {
             if let Some(messages) = resp.messages() {
                 if !messages.is_empty() {
                     for res in messages {
-                        println!("{:?}", res);
+                        println!("{res:?}");
                         if let Some(id) = res.body() {
                             if let Ok(id) = UserID::try_from(id.to_string()) {
                                 controller.create_carbon_deposit(id).await?;

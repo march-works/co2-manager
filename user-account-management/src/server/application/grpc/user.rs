@@ -70,13 +70,12 @@ impl UserGrpc for UserService<'static> {
             Err(UserError {
                 typ: UserErrorType::Duplicate,
                 desc,
-            }) => Err(Status::invalid_argument(format!("duplicate id: {}", desc))),
+            }) => Err(Status::invalid_argument(format!("duplicate id: {desc}"))),
             Err(UserError {
                 typ: UserErrorType::ParseFailed,
                 desc,
             }) => Err(Status::invalid_argument(format!(
-                "invalid id format: {}",
-                desc
+                "invalid id format: {desc}"
             ))),
             Err(e) => Err(Status::internal(e.desc)),
         }

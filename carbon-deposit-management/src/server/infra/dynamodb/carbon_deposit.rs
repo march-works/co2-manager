@@ -20,13 +20,13 @@ pub struct DynamodbCarbonDepositRepository;
 
 impl DynamodbCarbonDepositRepository {
     fn not_found(e: impl Display) -> CarbonDepositError {
-        CarbonDepositError::new(CarbonDepositErrorType::NotFound, format!("{}", e))
+        CarbonDepositError::new(CarbonDepositErrorType::NotFound, format!("{e}"))
     }
 
     fn parse_failed(field: &str) -> CarbonDepositError {
         CarbonDepositError::new(
             CarbonDepositErrorType::ParseFailed,
-            format!("could not parse {}", field),
+            format!("could not parse {field}"),
         )
     }
 
@@ -45,7 +45,7 @@ impl DynamodbCarbonDepositRepository {
             .map(|v| v.parse::<f32>())
             .map_err(|_| Self::parse_failed("amount"))?
             .map_err(|e| {
-                CarbonDepositError::new(CarbonDepositErrorType::Unknown, format!("{}", e))
+                CarbonDepositError::new(CarbonDepositErrorType::Unknown, format!("{e}"))
             })?;
         CarbonDeposit::new(user_id, amount)
     }
@@ -69,13 +69,13 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
             .map_err(|e| {
                 CarbonDepositError::new(
                     CarbonDepositErrorType::Unknown,
-                    format!("failed to connect to db: {:?}", e),
+                    format!("failed to connect to db: {e:?}"),
                 )
             })?;
         if let Some(deposit) = putted.attributes() {
             Self::retrieve(deposit)
         } else {
-            Err(Self::not_found(format!("not found for id: {}", id)))
+            Err(Self::not_found(format!("not found for id: {id}")))
         }
     }
 
@@ -93,13 +93,13 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
             .map_err(|e| {
                 CarbonDepositError::new(
                     CarbonDepositErrorType::Unknown,
-                    format!("failed to connect to db: {:?}", e),
+                    format!("failed to connect to db: {e:?}"),
                 )
             })?;
         if let Some(deposit) = item.item() {
             Self::retrieve(deposit)
         } else {
-            Err(Self::not_found(format!("not found for id: {}", id)))
+            Err(Self::not_found(format!("not found for id: {id}")))
         }
     }
 
@@ -127,7 +127,7 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
         if let Some(deposit) = updated.attributes() {
             Self::retrieve(deposit)
         } else {
-            Err(Self::not_found(format!("not found for id: {}", id)))
+            Err(Self::not_found(format!("not found for id: {id}")))
         }
     }
 }

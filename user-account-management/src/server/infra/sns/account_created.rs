@@ -12,7 +12,7 @@ pub async fn publish(account: &str) -> Result<(), anyhow::Error> {
             "failed to parse env",
         )
     })?;
-    println!("{:?}", arns);
+    println!("{arns:?}");
     let arns: Arns = serde_json::from_str(&arns)?;
 
     handler

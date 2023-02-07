@@ -75,7 +75,7 @@ impl CarbonDepositGrpc for CarbonDepositService<'static> {
             Err(CarbonDepositError {
                 typ: CarbonDepositErrorType::ParseFailed,
                 desc,
-            }) => Err(Status::internal(format!("invalid amount data: {}", desc))),
+            }) => Err(Status::internal(format!("invalid amount data: {desc}"))),
             Err(e) => Err(Status::internal(e.desc)),
         }
     }
