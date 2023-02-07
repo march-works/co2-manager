@@ -12,10 +12,9 @@ use std::thread;
 
 use tonic::transport::{server::Router, Server};
 
+use self::carbon_deposit::carbon_deposit_grpc_server::CarbonDepositGrpcServer;
 use self::grpc::carbon_deposit::CarbonDepositService;
-use self::{
-    carbon_deposit::carbon_deposit_grpc_server::CarbonDepositGrpcServer, sns::account_created,
-};
+use self::sns::subscribe;
 use crate::server::infra::{
     dynamodb::carbon_deposit::DynamodbCarbonDepositRepository, repository_impl::RepositoryImpls,
 };
@@ -25,7 +24,7 @@ static REPO: RepositoryImpls = RepositoryImpls {
 };
 
 pub fn subscribe_queues() {
-    thread::spawn(account_created::subscribe);
+    thread::spawn(subscribe);
 }
 
 pub async fn run_server() -> Router {
