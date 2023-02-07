@@ -505,6 +505,7 @@ dependencies = [
  "prost",
  "rstest",
  "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "tonic",
