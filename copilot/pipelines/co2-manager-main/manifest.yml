@@ -24,6 +24,11 @@ source:
 stages:
   - # The name of the environment.
     name: test
+    deployments:
+      user-account-management:
+      carbon-deposit-management:
+        depends_on:
+          - user-account-management
     # Optional: flag for manual approval action before deployment.
     # requires_approval: true
     # Optional: use test commands to validate this stage of your build.
