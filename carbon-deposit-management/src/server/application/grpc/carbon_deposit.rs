@@ -1,12 +1,13 @@
 use tonic::{Request, Response, Status};
 
-use crate::server::application::sync::carbon_deposit::carbon_deposit_grpc_server::CarbonDepositGrpc;
-use crate::server::application::sync::carbon_deposit::{
+use crate::server::application::carbon_deposit::carbon_deposit_grpc_server::CarbonDepositGrpc;
+use crate::server::application::carbon_deposit::{
     GetUserCarbonDepositRequest, GetUserCarbonDepositResponse,
 };
-use crate::server::application::sync::carbon_deposit::{
+use crate::server::application::carbon_deposit::{
     MoveDepositBetweenUserRequest, MoveDepositBetweenUserResponse,
 };
+use crate::server::domains::entities::carbon_deposit::{CarbonDepositAmount, UserID};
 use crate::server::{
     domains::errors::carbon_deposit::{CarbonDepositError, CarbonDepositErrorType},
     domains::services::carbon_deposit::CarbonDepositController,
@@ -56,6 +57,12 @@ impl CarbonDepositGrpc for CarbonDepositService<'static> {
         request: Request<MoveDepositBetweenUserRequest>,
     ) -> Result<Response<MoveDepositBetweenUserResponse>, Status> {
         let MoveDepositBetweenUserRequest { from, to, amount } = request.into_inner();
+        let from = UserID::try_from(from)
+            .map_err(|e| Status::internal(format!("invalid amount data: {}", e.desc)))?;
+        let to = UserID::try_from(to)
+            .map_err(|e| Status::internal(format!("invalid amount data: {}", e.desc)))?;
+        let amount = CarbonDepositAmount::try_from(amount)
+            .map_err(|e| Status::internal(format!("invalid amount data: {}", e.desc)))?;
         let result = self.controller.move_deposit(from, to, amount).await;
         match result {
             Ok(_) => Ok(Response::new(MoveDepositBetweenUserResponse {
@@ -68,7 +75,7 @@ impl CarbonDepositGrpc for CarbonDepositService<'static> {
             Err(CarbonDepositError {
                 typ: CarbonDepositErrorType::ParseFailed,
                 desc,
-            }) => Err(Status::internal(format!("invalid amount data: {}", desc))),
+            }) => Err(Status::internal(format!("invalid amount data: {desc}"))),
             Err(e) => Err(Status::internal(e.desc)),
         }
     }

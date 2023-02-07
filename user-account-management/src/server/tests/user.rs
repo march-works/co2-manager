@@ -1,10 +1,8 @@
-use crate::server::{
-    application::controllers::user::UserController,
-    domains::{
-        entities::user::User,
-        errors::user::{UserError, UserErrorType},
-        repositories::user::MockUserRepository,
-    },
+use crate::server::domains::{
+    entities::user::User,
+    errors::user::{UserError, UserErrorType},
+    repositories::user::MockUserRepository,
+    services::user::UserController,
 };
 
 use super::TestRepositories;

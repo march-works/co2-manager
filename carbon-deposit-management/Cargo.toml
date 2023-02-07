@@ -21,6 +21,7 @@ rstest = "0.16.0"
 aws-config = "0.52.0"
 aws-sdk-dynamodb = "0.22.0"
 aws-sdk-sns = "0.22.0"
+aws-sdk-sqs = "0.22.0"
 
 [build-dependencies]
 tonic-build = "0.8.4"

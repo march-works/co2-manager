@@ -20,13 +20,13 @@ pub struct DynamodbCarbonDepositRepository;
 
 impl DynamodbCarbonDepositRepository {
     fn not_found(e: impl Display) -> CarbonDepositError {
-        CarbonDepositError::new(CarbonDepositErrorType::NotFound, format!("{}", e))
+        CarbonDepositError::new(CarbonDepositErrorType::NotFound, format!("{e}"))
     }
 
     fn parse_failed(field: &str) -> CarbonDepositError {
         CarbonDepositError::new(
             CarbonDepositErrorType::ParseFailed,
-            format!("could not parse {}", field),
+            format!("could not parse {field}"),
         )
     }
 
@@ -45,7 +45,7 @@ impl DynamodbCarbonDepositRepository {
             .map(|v| v.parse::<f32>())
             .map_err(|_| Self::parse_failed("amount"))?
             .map_err(|e| {
-                CarbonDepositError::new(CarbonDepositErrorType::Unknown, format!("{}", e))
+                CarbonDepositError::new(CarbonDepositErrorType::Unknown, format!("{e}"))
             })?;
         CarbonDeposit::new(user_id, amount)
     }
@@ -53,6 +53,32 @@ impl DynamodbCarbonDepositRepository {
 
 #[async_trait]
 impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
+    async fn create_one(&self, id: String) -> CarbonDepositResult<CarbonDeposit> {
+        let table_name = env::var("CARBONDEPOSITS_NAME").map_err(|_| {
+            CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to parse env")
+        })?;
+        let handler = get_handler().await;
+        let putted = handler
+            .put_item()
+            .table_name(&table_name)
+            .item("userId", AttributeValue::S(id.clone()))
+            .item("amount", AttributeValue::N("0".to_string()))
+            .return_values(ReturnValue::AllNew)
+            .send()
+            .await
+            .map_err(|e| {
+                CarbonDepositError::new(
+                    CarbonDepositErrorType::Unknown,
+                    format!("failed to connect to db: {e:?}"),
+                )
+            })?;
+        if let Some(deposit) = putted.attributes() {
+            Self::retrieve(deposit)
+        } else {
+            Err(Self::not_found(format!("not found for id: {id}")))
+        }
+    }
+
     async fn find_one(&self, id: String) -> CarbonDepositResult<CarbonDeposit> {
         let table_name = env::var("CARBONDEPOSITS_NAME").map_err(|_| {
             CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to parse env")
@@ -67,13 +93,13 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
             .map_err(|e| {
                 CarbonDepositError::new(
                     CarbonDepositErrorType::Unknown,
-                    format!("failed to connect to db: {:?}", e),
+                    format!("failed to connect to db: {e:?}"),
                 )
             })?;
         if let Some(deposit) = item.item() {
             Self::retrieve(deposit)
         } else {
-            Err(Self::not_found(format!("not found for id: {}", id)))
+            Err(Self::not_found(format!("not found for id: {id}")))
         }
     }
 
@@ -101,7 +127,7 @@ impl CarbonDepositRepository for DynamodbCarbonDepositRepository {
         if let Some(deposit) = updated.attributes() {
             Self::retrieve(deposit)
         } else {
-            Err(Self::not_found(format!("not found for id: {}", id)))
+            Err(Self::not_found(format!("not found for id: {id}")))
         }
     }
 }

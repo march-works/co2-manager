@@ -1,4 +1,4 @@
-use server::infra::run_server;
+use server::application::run_server;
 
 mod server;
 
