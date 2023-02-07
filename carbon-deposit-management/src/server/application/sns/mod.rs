@@ -27,7 +27,7 @@ pub async fn get_handler() -> Client {
 #[derive(Deserialize)]
 #[allow(non_snake_case)]
 struct Message {
-    topicArn: String,
+    TopicArn: String,
     Message: String,
 }
 
@@ -56,11 +56,13 @@ async fn receive_and_handle<R: Repositories>(
                     match body {
                         Ok(message) => {
                             // topicを増やした場合はhandlerを追加する
-                            if message.topicArn == arns.accountCreatedTopic {
+                            if message.TopicArn == arns.accountCreatedTopic {
                                 let handled = handle(message.Message, controller).await;
                                 if let Err(e) = handled {
                                     println!("topic handle error: {e:?}");
                                 }
+                            } else {
+                                println!("no topic matched: {}", message.TopicArn);
                             }
                         }
                         Err(e) => {
