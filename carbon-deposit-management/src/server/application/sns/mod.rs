@@ -100,6 +100,7 @@ pub fn subscribe() -> Result<(), anyhow::Error> {
                 "failed to parse env",
             )
         })?;
+        println!("{arns}");
         let arns: Arns = serde_json::from_str(&arns)?;
 
         loop {
