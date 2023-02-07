@@ -24,7 +24,11 @@ static REPO: RepositoryImpls = RepositoryImpls {
 };
 
 pub fn subscribe_queues() {
-    thread::spawn(subscribe);
+    thread::spawn(|| {
+        if let Err(e) = subscribe() {
+            println!("{e:?}");
+        }
+    });
 }
 
 pub async fn run_server() -> Router {
