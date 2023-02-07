@@ -7,6 +7,8 @@ use crate::server::domains::{
 #[mockall::automock]
 #[async_trait]
 pub trait CarbonDepositRepository {
+    async fn create_one(&self, id: String) -> CarbonDepositResult<CarbonDeposit>;
+
     async fn find_one(&self, id: String) -> CarbonDepositResult<CarbonDeposit>;
 
     async fn update_one(&self, id: String, amount: f32) -> CarbonDepositResult<CarbonDeposit>;

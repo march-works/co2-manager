@@ -1,4 +1,4 @@
-mod application;
+pub mod application;
 mod domains;
 pub mod infra;
 

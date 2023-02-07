@@ -1,3 +1,5 @@
+use std::ops;
+
 use derive_getters::Getters;
 
 use crate::server::domains::errors::carbon_deposit::{
@@ -34,12 +36,29 @@ impl From<&UserID> for String {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct CarbonDepositAmount(f32);
 
 impl CarbonDepositAmount {
     fn validate(amount: f32) -> bool {
         amount >= 0.0
+    }
+}
+
+impl ops::Add for CarbonDepositAmount {
+    type Output = CarbonDepositAmount;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        // HACK: 正数＋正数のため常にvalid
+        Self::try_from(self.0 + rhs.0).unwrap()
+    }
+}
+
+impl ops::Sub for CarbonDepositAmount {
+    type Output = CarbonDepositResult<CarbonDepositAmount>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::try_from(self.0 - rhs.0)
     }
 }
 

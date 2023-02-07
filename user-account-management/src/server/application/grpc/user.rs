@@ -1,15 +1,15 @@
 use tonic::{Request, Response, Status};
 
 use crate::server::{
-    application::controllers::user::UserController,
-    domains::errors::user::{UserError, UserErrorType},
-    infra::{
-        repository_impl::RepositoryImpls,
-        user::{
-            user_grpc_server::UserGrpc, CreateUserRequest, CreateUserResponse, GetUserRequest,
-            GetUserResponse,
-        },
+    application::user::{
+        user_grpc_server::UserGrpc, CreateUserRequest, CreateUserResponse, GetUserRequest,
+        GetUserResponse,
     },
+    domains::{
+        errors::user::{UserError, UserErrorType},
+        services::user::UserController,
+    },
+    infra::{repository_impl::RepositoryImpls, sns::account_created},
 };
 
 pub struct UserService<'r> {
@@ -52,10 +52,21 @@ impl UserGrpc for UserService<'static> {
     ) -> Result<Response<CreateUserResponse>, Status> {
         let created = self.controller.create_user(request.into_inner().name).await;
         match created {
-            Ok(user) => Ok(Response::new(CreateUserResponse {
-                id: user.id().into(),
-                name: user.name().into(),
-            })),
+            Ok(user) => {
+                let res = account_created::publish(&String::from(user.id())).await;
+                if res.is_ok() {
+                    Ok(Response::new(CreateUserResponse {
+                        id: user.id().into(),
+                        name: user.name().into(),
+                    }))
+                } else {
+                    // TODO: ユーザー作成のロールバック処理
+                    Err(Status::unavailable(format!(
+                        "message service is temporary unavailable: {:?}",
+                        res.err().unwrap()
+                    )))
+                }
+            }
             Err(UserError {
                 typ: UserErrorType::Duplicate,
                 desc,

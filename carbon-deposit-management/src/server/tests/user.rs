@@ -1,7 +1,7 @@
 use crate::server::{
     domains::services::carbon_deposit::CarbonDepositController,
     domains::{
-        entities::carbon_deposit::CarbonDeposit,
+        entities::carbon_deposit::{CarbonDeposit, CarbonDepositAmount, UserID},
         errors::carbon_deposit::{CarbonDepositError, CarbonDepositErrorType},
         repositories::carbon_deposit::MockCarbonDepositRepository,
     },
@@ -61,9 +61,10 @@ async fn move_valid_deposit() {
     let repositories = TestRepositories::new(user_repo);
     let controller = CarbonDepositController::new(&repositories);
 
-    let move_result = controller
-        .move_deposit("from-id".to_string(), "to-id".to_string(), 100.0)
-        .await;
+    let from = UserID::try_from("from-id".to_string()).unwrap();
+    let to = UserID::try_from("to-id".to_string()).unwrap();
+    let amount = CarbonDepositAmount::try_from(100.0).unwrap();
+    let move_result = controller.move_deposit(from, to, amount).await;
     assert!(move_result.is_ok());
 }
 
@@ -83,9 +84,10 @@ async fn move_exceeding_deposit() {
     let repositories = TestRepositories::new(user_repo);
     let controller = CarbonDepositController::new(&repositories);
 
-    let move_result = controller
-        .move_deposit("from-id".to_string(), "to-id".to_string(), 100.0)
-        .await;
+    let from = UserID::try_from("from-id".to_string()).unwrap();
+    let to = UserID::try_from("to-id".to_string()).unwrap();
+    let amount = CarbonDepositAmount::try_from(100.0).unwrap();
+    let move_result = controller.move_deposit(from, to, amount).await;
     assert!(move_result.is_err());
     assert_eq!(
         move_result,
