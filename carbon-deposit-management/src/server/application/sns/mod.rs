@@ -31,16 +31,9 @@ struct Message {
     Message: String,
 }
 
-#[derive(Deserialize)]
-#[allow(non_snake_case)]
-struct Arns {
-    accountCreatedTopic: String,
-}
-
 async fn receive_and_handle<R: Repositories>(
     controller: &CarbonDepositController<'_, R>,
     client: &Client,
-    arns: &Arns,
     url: &str,
 ) {
     let resp = client.receive_message().queue_url(url).send().await;
@@ -56,7 +49,7 @@ async fn receive_and_handle<R: Repositories>(
                     match body {
                         Ok(message) => {
                             // topicを増やした場合はhandlerを追加する
-                            if message.TopicArn == arns.accountCreatedTopic {
+                            if message.TopicArn.ends_with("accountCreatedTopic") {
                                 let handled = handle(message.Message, controller).await;
                                 if let Err(e) = handled {
                                     println!("topic handle error: {e:?}");
@@ -94,17 +87,8 @@ pub fn subscribe() -> Result<(), anyhow::Error> {
         let url = env::var("COPILOT_QUEUE_URI").map_err(|_| {
             CarbonDepositError::new(CarbonDepositErrorType::Unknown, "failed to parse env")
         })?;
-        let arns = env::var("COPILOT_SNS_TOPIC_ARNS").map_err(|_| {
-            CarbonDepositError::new(
-                crate::server::domains::errors::carbon_deposit::CarbonDepositErrorType::ParseFailed,
-                "failed to parse env",
-            )
-        })?;
-        println!("{arns}");
-        let arns: Arns = serde_json::from_str(&arns)?;
-
         loop {
-            receive_and_handle(&controller, &client, &arns, &url).await;
+            receive_and_handle(&controller, &client, &url).await;
             sleep(Duration::from_secs(10)).await;
         }
     })
